@@ -21,12 +21,13 @@ class Command(BaseCommand):
         self.verbosity = int(options.get('verbosity'))
 
         try:
-            self.call_arp_table()
+            self.capture()
         except KeyboardInterrupt:
             self.stdout.write("Keyboard Interrupted")
 
     def capture(self):
 
+        logger.info("Start DNS capturing")
         p = subprocess.Popen(self.tail_command, shell=True, stdout=subprocess.PIPE)
 
         while True:
