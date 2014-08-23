@@ -5,8 +5,8 @@ from django.core.management.base import BaseCommand
 from django.utils.timezone import now, datetime
 from netactivity.core.capturing import register_session
 import subprocess
-import shlex
-import fileinput
+# import shlex
+# import fileinput
 import re
 
 expression = re.compile('^(?P<hour>\d{2}):(?P<minute>\d{2}):'
@@ -54,10 +54,8 @@ class Command(BaseCommand):
         if self.iface:
             command += " -i %s" % self.iface
 
-        print shlex.split(command)
-
         try:
-            p = subprocess.Popen(shlex.split(command), shell=True, stdout=subprocess.PIPE)
+            p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
             #for line in fileinput.input('-'):
             #for row in p.stdout:
             while True:
