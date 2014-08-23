@@ -32,7 +32,7 @@ class Command(BaseCommand):
 
     help = "Captures network sessions (tcpdump default format)."
 
-    tcpdump_command = "tcpdump 'tcp[13]=18'"
+    tcpdump_command = ("tcpdump", "-n", "'tcp[13]=18'",)
 
     def handle(self, *args, **options):
         self.verbosity = int(options.get('verbosity'))
@@ -51,15 +51,16 @@ class Command(BaseCommand):
 
         command = self.tcpdump_command
         if self.iface:
-            command += " -i %s" % self.iface
+            command += ("-i %s" % self.iface, )
 
-        command += " -l"  # Line buffered
+        command += ("-l", )  # Line buffered
 
         try:
             p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
 
             #for line in fileinput.input('-'):
-            for line in p.stdout.readlines():
+            for row in p.stdout:
+                line = row.rstrip()
                 print line
                 r = expression.match(line)
                 if r is None:
