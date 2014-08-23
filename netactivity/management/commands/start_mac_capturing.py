@@ -7,6 +7,8 @@ from netactivity.models import Client
 import re
 import subprocess
 import time
+import logging
+logger = logging.getLogger(__name__)
 
 ip_expression = re.compile('.*\((?P<ip>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\)')
 mac_expression = re.compile(
@@ -50,21 +52,22 @@ class Command(BaseCommand):
                 mac_res = mac_expression.match(i)
 
                 if ip_res is None:
-                    self.stderr.write("Invalid format (ip): '%s'" % i)
+                    logger.warning("Invalid format (ip): '%s'" % i)
                     continue
 
                 if mac_res is None:
-                    self.stderr.write("Invalid format (mac): '%s'" % i)
+                    logger.warning("Invalid format (mac): '%s'" % i)
                     continue
 
                 ip = ip_res.group(1)
                 mac = format_hw_address(mac_res.group(1))
 
-                print "%s -> %s" % (mac, ip)
+                logger.debug("Got: %s -> %s" % (mac, ip))
+
                 # Check if update is required
                 if ip not in self.cache.keys() or mac != self.cache[ip]:
                     if self.verbosity >= 2:
-                        self.stdout.write("Update required for ip '%s'@'%s'" % (ip, mac))
+                        logger.warning("Client new/changed. Update required for ip '%s'@'%s'" % (ip, mac))
 
                     mac_matched = Client.objects.filter(mac_address=mac).first()
 
