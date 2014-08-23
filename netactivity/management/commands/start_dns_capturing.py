@@ -47,7 +47,9 @@ class Command(BaseCommand):
                 pid = pid[1:-2]
 
                 if cmd.endswith("]"):
-                    cmd, cmd_type = re.match('^([a-z]+)\[([A-Z]+?)\]$', cmd)
+                    match = re.match('^([a-z]+)\[([A-Z]+?)\]$', cmd)
+                    if match:
+                        cmd, cmd_type = match.groups()
 
             except KeyError:
                 continue
