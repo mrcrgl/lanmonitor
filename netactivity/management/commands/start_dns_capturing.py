@@ -4,6 +4,7 @@ from django.core.management.base import BaseCommand
 from django.utils.timezone import now
 from netactivity.models import DNSElement, Client, TargetHost
 import subprocess
+import re
 import logging
 logger = logging.getLogger(__name__)
 
@@ -46,8 +47,7 @@ class Command(BaseCommand):
                 pid = pid[1:-2]
 
                 if cmd.endswith("]"):
-                    cmd = cmd[:-3]
-                    cmd_type = "A"
+                    cmd, cmd_type = re.match('^([a-z]+)\[([A-Z]+?)\]$', cmd)
 
             except KeyError:
                 continue
@@ -96,6 +96,7 @@ class Command(BaseCommand):
 
             dns.clients.add(client)
             dns.target_hosts.add(*targets)
+            dns.save()
 
         else:
             logger.warning("Invalid cache content: %r", self.cache)
