@@ -30,7 +30,7 @@ class TargetHost(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
-        if self.reverse_dns:
+        if self.reverse_dns is not None:
             return "%s (%s)" % (self.reverse_dns, self.ip_address)
 
         return self.ip_address
