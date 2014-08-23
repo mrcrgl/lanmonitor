@@ -27,8 +27,22 @@ class TargetHostAdmin(admin.ModelAdmin):
     list_filter = ('flag',)
     readonly_fields = ('ip_address', 'reverse_dns', 'location',)
 
+
+class DNSElementAdmin(admin.ModelAdmin):
+    list_display = ('domain', 'type', 'response', 'last_query', 'client_count',)
+    list_filter = ('type',)
+    readonly_fields = ('clients', 'target_hosts', 'domain', 'type', 'last_query',)
+    search_fields = ('domain',)
+
+    def client_count(self, instance):
+        return str(instance.clients.count())
+
+    def response(self, instance):
+        return ", ".join([t.ip_address for t in instance.target_hosts.all()])
+
+
 # Register your models here.
 admin.site.register(Client, ClientAdmin)
 admin.site.register(TargetHost, TargetHostAdmin)
 admin.site.register(NetSession, NetSessionAdmin)
-admin.site.register(DNSElement)
+admin.site.register(DNSElement, DNSElementAdmin)

@@ -37,13 +37,19 @@ class TargetHost(models.Model):
 
 
 class DNSElement(models.Model):
-    domain = models.CharField(max_length=255, unique=True)
+    domain = models.CharField(max_length=255)
+    type = models.CharField(max_length=5, default="A")
     clients = models.ManyToManyField(Client, related_name='dns_requests')
     target_hosts = models.ManyToManyField(TargetHost, related_name='dns_names')
     last_query = models.DateTimeField(null=True, default=None)
 
+    class Meta:
+        unique_together = [
+            ['domain', 'type']
+        ]
+
     def __unicode__(self):
-        return self.domain
+        return "%s IN %s" % (self.domain, self.type)
 
 
 class NetSession(models.Model):
