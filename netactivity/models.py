@@ -10,7 +10,7 @@ class Client(models.Model):
     last_ip_update = models.DateTimeField(null=True, default=None)
 
     def __unicode__(self):
-        return self.name if self.name is not None else self.mac_address
+        return self.name if self.name else self.mac_address
 
 
 class TargetHost(models.Model):
