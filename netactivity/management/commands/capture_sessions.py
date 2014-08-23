@@ -58,11 +58,18 @@ class Command(BaseCommand):
 
         try:
             p = subprocess.Popen(shlex.split(command), shell=True, stdout=subprocess.PIPE)
-            out, err = p.communicate()
+            p.communicate()
 
             #for line in fileinput.input('-'):
-            for row in out:
-                line = row.rstrip()
+            #for row in p.stdout:
+            while True:
+                line = p.stdout.readline()
+
+                if not line:
+                    print "empty line... break now"
+                    break
+
+                line = line.rstrip()
                 print line
                 r = expression.match(line)
                 if r is None:
