@@ -53,34 +53,39 @@ class Command(BaseCommand):
         if self.iface:
             command += " -i %s" % self.iface
 
+        command += " -l"  # Line buffered
 
-        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+        try:
+            p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
 
-        #for line in fileinput.input('-'):
-        for line in p.stdout.readlines():
-            print line
-            r = expression.match(line)
-            if r is None:
-                self.stderr.write("Wrong input format!")
+            #for line in fileinput.input('-'):
+            for line in p.stdout.readlines():
+                print line
+                r = expression.match(line)
+                if r is None:
+                    self.stderr.write("Wrong input format!")
 
-            today = now()
-            hour, min, sec, micro, dest, port, dir, client, dport = r.groups()
+                today = now()
+                hour, min, sec, micro, dest, port, dir, client, dport = r.groups()
 
-            if self.local_prefix and dest.startswith(self.local_prefix):
+                if self.local_prefix and dest.startswith(self.local_prefix):
+                    if self.verbosity >= 2:
+                        self.stdout.write(self.style.NOTICE("Local destination skipped: %s" % dest))
+                    continue
+
+                hour = int(hour)
+                min = int(min)
+                sec = int(sec)
+                micro = int(micro)
+                port = int(port)
+
+                date_captured = datetime(today.year, today.month, today.day,
+                                         hour, min, sec, micro)
+
+                register_session(date_captured, client, dest, port)
+
                 if self.verbosity >= 2:
-                    self.stdout.write(self.style.NOTICE("Local destination skipped: %s" % dest))
-                continue
+                    self.stdout.write(self.style.MIGRATE_SUCCESS("%s > %s:%d" % (client, dest, port)))
 
-            hour = int(hour)
-            min = int(min)
-            sec = int(sec)
-            micro = int(micro)
-            port = int(port)
-
-            date_captured = datetime(today.year, today.month, today.day,
-                                     hour, min, sec, micro)
-
-            register_session(date_captured, client, dest, port)
-
-            if self.verbosity >= 2:
-                self.stdout.write(self.style.MIGRATE_SUCCESS("%s > %s:%d" % (client, dest, port)))
+        except KeyboardInterrupt:
+            p.terminate()
