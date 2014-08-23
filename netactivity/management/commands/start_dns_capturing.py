@@ -95,7 +95,7 @@ class Command(BaseCommand):
                 dns.target_hosts.clear()
 
             dns.clients.add(client)
-            dns.target_hosts.add(*target)
+            dns.target_hosts.add(*targets)
 
         else:
             logger.warning("Invalid cache content: %r", self.cache)
