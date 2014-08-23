@@ -63,13 +63,26 @@ class Command(BaseCommand):
                     if self.verbosity >= 2:
                         self.stdout.write("Update required for ip '%s'@'%s'" % (ip, mac))
 
-                    c, created = Client.objects.get_or_create(mac_address=mac, defaults={
-                        'last_ip_update': now(),
-                        'last_ip_address': ip
-                    })
+                    mac_matched = Client.objects.filter(mac_address=mac).first()
+
+                    l = Client.objects.filter(last_ip_address=ip).first()
+                    if l:
+                        if mac_matched and mac_matched.pk != l.pk:
+                            # remove ip, there's a new client
+                            l.last_ip_address = None
+                            l.save()
+                        else:
+                            l.mac_address = mac
+                            l.last_ip_update = now()
+                            l.save
+                    else:
+                        c, created = Client.objects.get_or_create(mac_address=mac, defaults={
+                            'last_ip_update': now(),
+                            'last_ip_address': ip
+                        })
 
                     if not created:
-                        c.last_ip_update = now();
+                        c.last_ip_update = now()
                         c.last_ip_address = ip
                         c.save()
 

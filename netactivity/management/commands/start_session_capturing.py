@@ -8,6 +8,8 @@ import subprocess
 # import shlex
 # import fileinput
 import re
+import logging
+logger = logging.getLogger(__name__)
 
 expression = re.compile('^(?P<hour>\d{2}):(?P<minute>\d{2}):'
                         '(?P<second>\d{2})\.(?P<micro>\d{6})\WIP\W'
@@ -62,22 +64,23 @@ class Command(BaseCommand):
                 line = p.stdout.readline()
 
                 if not line:
-                    print "empty line... break now"
+                    logger.warning("empty line... process terminates")
                     break
 
                 line = line.rstrip()
-                print line
                 r = expression.match(line)
                 if r is None:
-                    self.stderr.write("Wrong input format!")
+                    logger.warning("Wrong input format: %s", line)
                     continue
 
                 today = now()
                 hour, min, sec, micro, dest, port, dir, client, dport = r.groups()
 
+                logger.debug("received src=%s dest=%s port=%s", client, dest, port)
+
                 if self.local_prefix and dest.startswith(self.local_prefix):
                     if self.verbosity >= 2:
-                        self.stdout.write(self.style.NOTICE("Local destination skipped: %s" % dest))
+                        logger.info("Local destination skipped: %s" % dest)
                     continue
 
                 hour = int(hour)
