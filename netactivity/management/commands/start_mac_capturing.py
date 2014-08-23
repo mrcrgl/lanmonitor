@@ -27,9 +27,12 @@ class Command(BaseCommand):
         self.frequency = 1
 
         # print mac_expression.match('Hallo du sack! 12:12:12:12:12:12 foo bar')
-        while True:
-            self.call_arp_table()
-            time.sleep(self.frequency)
+        try:
+            while True:
+                self.call_arp_table()
+                time.sleep(self.frequency)
+        except KeyboardInterrupt:
+            self.stdout.write("Keyboard Interrupted")
 
     def call_arp_table(self):
         p = subprocess.Popen(self.arp_command, shell=True, stdout=subprocess.PIPE)
@@ -81,10 +84,10 @@ class Command(BaseCommand):
                             'last_ip_address': ip
                         })
 
-                    if not created:
-                        c.last_ip_update = now()
-                        c.last_ip_address = ip
-                        c.save()
+                        if not created:
+                            c.last_ip_update = now()
+                            c.last_ip_address = ip
+                            c.save()
 
                 # Add/Update cache
                 self.cache[ip] = mac
