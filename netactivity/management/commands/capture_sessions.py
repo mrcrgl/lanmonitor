@@ -5,6 +5,7 @@ from django.core.management.base import BaseCommand
 from django.utils.timezone import now, datetime
 from netactivity.core.capturing import register_session
 import subprocess
+import shlex
 import fileinput
 import re
 
@@ -32,7 +33,7 @@ class Command(BaseCommand):
 
     help = "Captures network sessions (tcpdump default format)."
 
-    tcpdump_command = ("tcpdump", "-n", "'tcp[13]=18'",)
+    tcpdump_command = "tcpdump -n -l 'tcp[13]=18' "
 
     def handle(self, *args, **options):
         self.verbosity = int(options.get('verbosity'))
@@ -51,15 +52,16 @@ class Command(BaseCommand):
 
         command = self.tcpdump_command
         if self.iface:
-            command += ("-i", "%s" % self.iface,)
+            command += " -i %s" % self.iface
 
-        command += (" -l",)  # Line buffered
+        print shlex.split(command)
 
         try:
-            p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+            p = subprocess.Popen(shlex.split(command), shell=True, stdout=subprocess.PIPE)
+            out, err = p.communicate()
 
             #for line in fileinput.input('-'):
-            for row in p.stdout:
+            for row in out:
                 line = row.rstrip()
                 print line
                 r = expression.match(line)
