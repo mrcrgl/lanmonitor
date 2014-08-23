@@ -4,7 +4,7 @@ from .models import TargetHost
 from .tasks import enrich_target_host
 
 @receiver(signal=post_save, sender=TargetHost)
-def enrich_target_host(sender, instance, created, **kwargs):
+def enrich_target_host_signal(sender, instance, created, **kwargs):
 
     if created:
         enrich_target_host.delay(instance)
