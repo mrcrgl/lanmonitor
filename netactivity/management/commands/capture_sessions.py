@@ -58,8 +58,6 @@ class Command(BaseCommand):
 
         try:
             p = subprocess.Popen(shlex.split(command), shell=True, stdout=subprocess.PIPE)
-            p.communicate()
-
             #for line in fileinput.input('-'):
             #for row in p.stdout:
             while True:
