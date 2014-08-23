@@ -123,6 +123,7 @@ LOGGING = {
 
 DISTRIBUTED_TASK_BROKER = {
     'OPTIONS': {
-        'HOST': '10.80.2.25'
+        #'HOST': '10.80.2.25'
+        'HOST': '10.0.2.1'
     }
 }

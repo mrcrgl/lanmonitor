@@ -4,6 +4,7 @@ from optparse import make_option
 from django.core.management.base import BaseCommand
 from django.utils.timezone import now, datetime
 from netactivity.core.capturing import register_session
+import subprocess
 import fileinput
 import re
 
@@ -25,13 +26,18 @@ class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
         make_option('--local-prefix', action='store', type="string", dest='local_prefix', default=None,
                     help='Set your prefix for local network, these destinations will be ignored (Eg. 10.0.0.)'),
+        make_option('--iface', action='store', type="string", dest='iface', default=None,
+                    help='Network interface to listen on.'),
     )
 
     help = "Captures network sessions (tcpdump default format)."
 
+    tcpdump_command = "tcpdump 'tcp[13]=18'"
+
     def handle(self, *args, **options):
         self.verbosity = int(options.get('verbosity'))
         self.local_prefix = options.get('local_prefix')
+        self.iface = options.get('iface')
 
         if self.verbosity >= 1:
             self.stdout.write("Start capturing...")
@@ -43,7 +49,16 @@ class Command(BaseCommand):
 
     def capture(self):
 
-        for line in fileinput.input('-'):
+        command = self.tcpdump_command
+        if self.iface:
+            command += " -i %s" % self.iface
+
+
+        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+
+        #for line in fileinput.input('-'):
+        for line in p.stdout.readlines():
+            print line
             r = expression.match(line)
             if r is None:
                 self.stderr.write("Wrong input format!")

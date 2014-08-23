@@ -1,4 +1,3 @@
 Django==1.7c2
 pygeoip==0.3.1
-pika==0.9.14
 -e git://github.com/mrcrgl/django_distributed_task.git#egg=django_distributed_task
